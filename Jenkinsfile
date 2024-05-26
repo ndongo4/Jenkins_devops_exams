@@ -60,9 +60,7 @@ pipeline {
             }
         }
         stage('Deploy to Dev') {
-            environment {
-                KUBECONFIG = KUBECONFIG_FILE
-            }
+            
             steps {
                 script {
                     sh '''
