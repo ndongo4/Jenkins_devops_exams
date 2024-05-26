@@ -62,19 +62,6 @@ pipeline {
                 }
             }
         }
-        stage('Deploy Nginx') {
-            steps {
-                script {
-                    sh '''
-                        export KUBECONFIG=$KUBECONFIG_FILE
-                        helm upgrade --install nginx-dev nginx-chart --set image.tag=latest --namespace dev
-                        helm upgrade --install nginx-qa nginx-chart --set image.tag=latest --namespace qa
-                        helm upgrade --install nginx-staging nginx-chart --set image.tag=latest --namespace staging
-                        helm upgrade --install nginx-prod nginx-chart --set image.tag=latest --namespace prod
-                    '''
-                }
-            }
-        }
 
         stage('Deploy to Dev') {
             
@@ -84,7 +71,8 @@ pipeline {
                         export KUBECONFIG=$KUBECONFIG_FILE
                         helm upgrade --install cast-service-dev cast-service-chart --set image.tag=$DOCKER_TAG --namespace dev
                         helm upgrade --install movie-service-dev movie-service-chart --set image.tag=$DOCKER_TAG --namespace dev
-                    '''
+                        helm upgrade --install nginx-dev nginx-chart --set image.tag=latest --namespace dev
+                      '''
                 }
             }
         }
@@ -96,7 +84,8 @@ pipeline {
                         export KUBECONFIG=$KUBECONFIG_FILE
                         helm upgrade --install cast-service-qa cast-service-chart --set image.tag=$DOCKER_TAG --namespace qa
                         helm upgrade --install movie-service-qa movie-service-chart --set image.tag=$DOCKER_TAG --namespace qa
-                    '''
+                        helm upgrade --install nginx-qa nginx-chart --set image.tag=latest --namespace qa
+                     '''
                 }
             }
         }
@@ -108,6 +97,7 @@ pipeline {
                         export KUBECONFIG=$KUBECONFIG_FILE
                         helm upgrade --install cast-service-staging cast-service-chart --set image.tag=$DOCKER_TAG --namespace staging
                         helm upgrade --install movie-service-staging movie-service-chart --set image.tag=$DOCKER_TAG --namespace staging
+                        helm upgrade --install nginx-staging nginx-chart --set image.tag=latest --namespace staging 
                     '''
                 }
             }
@@ -125,7 +115,8 @@ pipeline {
                         export KUBECONFIG=$KUBECONFIG_FILE
                         helm upgrade --install cast-service-prod cast-service-chart --set image.tag=$DOCKER_TAG --namespace prod
                         helm upgrade --install movie-service-prod movie-service-chart --set image.tag=$DOCKER_TAG --namespace prod
-                    '''
+                        helm upgrade --install nginx-prod nginx-chart --set image.tag=latest --namespace prod
+                     '''
                 }
             }
         }
