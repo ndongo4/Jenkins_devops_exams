@@ -2,7 +2,7 @@
 FROM nginx:latest
 
 # Copier le fichier de configuration nginx personnalisé
-COPY nginx_config.conf /etc/nginx/nginx.conf
+COPY ./nginx-chart/nginx_config.conf /etc/nginx/nginx.conf
 
 # Exposer le port 80
 EXPOSE 80
