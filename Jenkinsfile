@@ -72,9 +72,7 @@ pipeline {
             }
         }
         stage('Deploy to QA') {
-            environment {
-                KUBECONFIG = KUBECONFIG_FILE
-            }
+       
             steps {
                 script {
                     sh '''
@@ -86,9 +84,7 @@ pipeline {
             }
         }
         stage('Deploy to Staging') {
-            environment {
-                KUBECONFIG = KUBECONFIG_FILE
-            }
+           
             steps {
                 script {
                     sh '''
@@ -103,9 +99,7 @@ pipeline {
             when {
                 branch 'master'
             }
-            environment {
-                KUBECONFIG = KUBECONFIG_FILE
-            }
+          
             steps {
                 timeout(time: 15, unit: 'MINUTES') {
                     input message: 'Do you want to deploy to production?', ok: 'Yes'
