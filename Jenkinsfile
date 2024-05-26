@@ -23,7 +23,7 @@ pipeline {
                     sh '''
                         docker build -t $DOCKER_ID/cast-service:$DOCKER_TAG ./cast-service
                         docker build -t $DOCKER_ID/movie-service:$DOCKER_TAG ./movie-service
-                        docker build -t $DOCKER_ID/nginx:latest  ./nginx-chart
+                        docker build --progress=plain -t  nginx:latest  ./nginx-chart
                         sleep 6
                     '''
                 }
@@ -33,9 +33,9 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        docker run -d -p 80:80 --name jenkins-cast  $DOCKER_ID/cast-service:$DOCKER_TAG
-                        docker run -d -p 80:80 --name jenkins-movie $DOCKER_ID/movie-service:$DOCKER_TAG
-                        docker run -d -p 80:80 --name jenkins-nginx $DOCKER_ID/nginx:latest
+                        docker run -d -p 80:8000 --name jenkins-cast  $DOCKER_ID/cast-service:$DOCKER_TAG
+                        docker run -d -p 81:8000 --name jenkins-movie $DOCKER_ID/movie-service:$DOCKER_TAG
+                        docker run -d -p 82:8080 --name jenkins-nginx nginx:latest
                         sleep 10
                     '''
                 }
@@ -45,7 +45,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        curl localhost:80 
+                        curl localhost:82
                     '''
                 }
             }
