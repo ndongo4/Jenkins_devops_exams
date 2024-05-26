@@ -23,6 +23,7 @@ pipeline {
                     sh '''
                         docker build -t $DOCKER_ID/cast-service:$DOCKER_TAG ./cast-service
                         docker build -t $DOCKER_ID/movie-service:$DOCKER_TAG ./movie-service
+                        docker build -t $DOCKER_ID/nginx:latest  ./nginx-chart
                         sleep 6
                     '''
                 }
@@ -32,8 +33,9 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        docker run -d -p 80:80 --name jenkins-cast $DOCKER_ID/cast-service:$DOCKER_TAG
+                        docker run -d -p 80:80 --name jenkins-cast  $DOCKER_ID/cast-service:$DOCKER_TAG
                         docker run -d -p 80:80 --name jenkins-movie $DOCKER_ID/movie-service:$DOCKER_TAG
+                        docker run -d -p 80:80 --name jenkins-nginx $DOCKER_ID/nginx:latest
                         sleep 10
                     '''
                 }
@@ -43,7 +45,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        curl localhost
+                        curl localhost:80 
                     '''
                 }
             }
@@ -55,10 +57,25 @@ pipeline {
                         docker login -u $DOCKER_ID -p $DOCKERHUB_CREDENTIALS
                         docker push $DOCKER_ID/cast-service:$DOCKER_TAG
                         docker push $DOCKER_ID/movie-service:$DOCKER_TAG
+                       
                     '''
                 }
             }
         }
+        stage('Deploy Nginx') {
+            steps {
+                script {
+                    sh '''
+                        export KUBECONFIG=$KUBECONFIG_FILE
+                        helm upgrade --install nginx-dev nginx-chart --set image.tag=latest --namespace dev
+                        helm upgrade --install nginx-qa nginx-chart --set image.tag=latest --namespace qa
+                        helm upgrade --install nginx-staging nginx-chart --set image.tag=latest --namespace staging
+                        helm upgrade --install nginx-prod nginx-chart --set image.tag=latest --namespace prod
+                    '''
+                }
+            }
+        }
+
         stage('Deploy to Dev') {
             
             steps {
@@ -96,17 +113,16 @@ pipeline {
             }
         }
         stage('Deploy to Prod') {
-            when {
+              when {
                 branch 'master'
             }
-          
             steps {
                 timeout(time: 15, unit: 'MINUTES') {
                     input message: 'Do you want to deploy to production?', ok: 'Yes'
                 }
                 script {
                     sh '''
-                        export KUBECONFIG
+                        export KUBECONFIG=$KUBECONFIG_FILE
                         helm upgrade --install cast-service-prod cast-service-chart --set image.tag=$DOCKER_TAG --namespace prod
                         helm upgrade --install movie-service-prod movie-service-chart --set image.tag=$DOCKER_TAG --namespace prod
                     '''
@@ -115,9 +131,8 @@ pipeline {
         }
     }
     post {
-        always {
-            cleanWs()
-        }
+        
+
         failure {
             echo "This will run if the job failed"
             mail to: "seye.ndongo4@gmail.com",
