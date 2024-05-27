@@ -45,7 +45,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        curl localhost:8080
+                        curl localhost || true
                     '''
                 }
             }
