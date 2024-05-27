@@ -1,6 +1,8 @@
 FROM nginx:latest
 
-COPY ./nginx-chart/nginx_config.conf /etc/nginx/nginx.conf
+WORKDIR ./nginx-chart
+
+COPY nginx_config.conf /etc/nginx/nginx.conf
 
 EXPOSE 8080
 
