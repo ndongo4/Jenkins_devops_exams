@@ -103,9 +103,9 @@ pipeline {
             }
         }
         stage('Deploy to Prod') {
-              when {
-                branch 'master'
-            }
+             // when {
+             //   branch 'master'
+             //}
             steps {
                 timeout(time: 15, unit: 'MINUTES') {
                     input message: 'Do you want to deploy to production?', ok: 'Yes'
