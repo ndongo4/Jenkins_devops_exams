@@ -33,9 +33,9 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        docker run -d -p 80:8000 --name jenkins-cast  $DOCKER_ID/cast-service:$DOCKER_TAG
-                        docker run -d -p 81:8000 --name jenkins-movie $DOCKER_ID/movie-service:$DOCKER_TAG
-                        docker run -d -p 82:8080 --name jenkins-nginx nginx:latest
+                        docker run -d -p 8000:8000 --name jenkins-cast  $DOCKER_ID/cast-service:$DOCKER_TAG
+                        docker run -d -p 8001:8000 --name jenkins-movie $DOCKER_ID/movie-service:$DOCKER_TAG
+                        docker run -d -p 8080:8080 --name jenkins-nginx nginx:latest
                         sleep 10
                     '''
                 }
@@ -45,7 +45,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        curl localhost:82
+                        curl localhost:8080
                     '''
                 }
             }
